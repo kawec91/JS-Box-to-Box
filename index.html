@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>HTML + CSS</title>
+    <link rel="stylesheet" href="styles.css" />
+    <script src="https://cdn.tailwindcss.com"></script>
+  </head>
+  <body>
+    <header></header>
+    <main class="flex flex-col p-2 gap-2">
+      <div class="flex justify-between">
+        <!--List1-->
+        <div
+          id="l1"
+          class="w-full h-96 border border-black rounded p-2 gap-2 flex flex-col overflow-auto"
+        ></div>
+        <!--BtN DIV-->
+        <div class="flex flex-col p-2 justify-center items-center gap-2">
+          <button
+            class="bg-blue-700 py-4 px-8 rounded font-bold text-white"
+            onclick="moveItem()"
+          >
+            <
+          </button>
+          <button
+            class="bg-blue-700 py-4 px-8 rounded font-bold text-white"
+            onclick="moveItem()"
+          >
+            >
+          </button>
+        </div>
+        <!--List2-->
+        <div
+          id="l2"
+          class="w-full h-96 border border-black rounded p-2 gap-2 flex flex-col overflow-auto"
+        ></div>
+      </div>
+      <!--Action Div-->
+      <div class="flex gap-2 items-center">
+        <input
+          type="text"
+          placeholder="Eingabefeld"
+          name="ein"
+          class="border border-black p-2 rounded"
+        />
+        <div>
+          <button
+            class="bg-blue-700 px-4 py-2 rounded text-white font-bold"
+            onclick="addNewItem()"
+          >
+            +
+          </button>
+          <button
+            class="bg-blue-700 px-4 py-2 rounded text-white font-bold"
+            onclick="deleteItem()"
+          >
+            -
+          </button>
+        </div>
+      </div>
+    </main>
+    <footer></footer>
+    <script>
+      //State
+      let chosenDiv = "";
+      let chosenList = "";
+      let activeItem = "";
+      //Lists
+      let list1 = [];
+      let list2 = [];
+      //Input Object
+      let myInput = {};
+      //Connections
+      let inputs = document.getElementsByTagName("input");
+      let listOne = document.getElementById("l1");
+      let listTwo = document.getElementById("l2");
+      let cards = document.getElementsByName("card");
+      //Functions
+      //Handle Chenges
+      function handleChanges(e) {
+        myInput = {
+          ...myInput,
+          index: list1.length,
+          [e.target.name]: e.target.value,
+        };
+      }
+      //Save in List 1
+      function addNewItem() {
+        //Push to list
+        list1.push(myInput);
+        //Clear Values
+        for (let i of inputs) i.value = "";
+        //Clear Object
+        myInput = {};
+        //load data
+        load();
+      }
+
+      //Read Data
+      function load() {
+        //Clear Data
+        listOne.innerHTML = "";
+        listTwo.innerHTML = "";
+        //Load Data
+        for (let i = 0; i < list1.length; i++) {
+          //Set new index for card
+          list1[i].index = i;
+          //Add card t o HTML
+          listOne.innerHTML += createCard(list1[i]);
+        }
+        for (let i = 0; i < list2.length; i++) {
+          //Set new index for card
+          list2[i].index = i;
+          //Add card t o HTML
+          listTwo.innerHTML += createCard(list2[i]);
+        }
+
+        //Create Listeners
+        for (let i of cards) {
+          i.addEventListener("click", (e) => {
+            chosenDiv = e.target.id;
+            //
+
+            for (let x = 0; x < list1.length; x++) {
+              let t = e.target.innerText;
+              if (
+                Number(list1[x].index) === x &&
+                list1[x].ein === e.target.innerText
+              ) {
+                chosenList = "list1";
+              } else {
+                for (let y = 0; y < list2.length; y++) {
+                  if (
+                    Number(list2[y].index) === x &&
+                    list2[y].ein === e.target.innerText
+                  ) {
+                    chosenList = "list2";
+                  }
+                }
+              }
+            }
+            if (chosenList === "list1") {
+              if (activeItem !== "")
+                activeItem.classList =
+                  "cursor-pointer hover:bg-gray-400 w-full p-2 rounded bg-gray-200";
+              let no = 30 + Number(e.target.id);
+              activeItem = document.querySelector(`#l1 > #\\${no} `);
+              activeItem.classList =
+                "cursor-pointer hover:bg-yellow-600 w-full p-2 rounded bg-yellow-400";
+              console.log(activeItem);
+            }
+            if (chosenList === "list2") {
+              if (activeItem !== "")
+                activeItem.classList =
+                  "cursor-pointer hover:bg-gray-400 w-full p-2 rounded bg-gray-200";
+              let no = 30 + Number(e.target.id);
+              activeItem = document.querySelector(`#l2 > #\\${no} `);
+              activeItem.classList =
+                "cursor-pointer hover:bg-yellow-600 w-full p-2 rounded bg-yellow-400";
+              console.log(activeItem);
+            }
+          });
+        }
+      }
+      //Move Item
+      function moveItem() {
+        switch (chosenList) {
+          case "list1":
+            list2.push(list1[chosenDiv]);
+            removeItem(chosenList, chosenDiv);
+            break;
+          case "list2":
+            list1.push(list2[chosenDiv]);
+            removeItem(chosenList, chosenDiv);
+            break;
+          default:
+            break;
+        }
+      }
+      //Delete Item
+      function deleteItem() {
+        removeItem(chosenList, chosenDiv);
+      }
+
+      //Remove From List itemIndex
+      function removeItem(list, index) {
+        let myList;
+        switch (list) {
+          case "list1":
+            myList = list1;
+            myList.splice(Number(index), 1);
+            list1 = myList;
+            load();
+            break;
+          case "list2":
+            myList = list2;
+            myList.splice(Number(index), 1);
+            list2 = myList;
+            load();
+            break;
+          default:
+            break;
+        }
+
+        console.log(list);
+      }
+
+      // ListCard
+      function createCard(item) {
+        return `
+            <div id='${item.index}' name='card' class='cursor-pointer hover:bg-gray-400 w-full p-2 rounded bg-gray-200'>
+                ${item.ein}
+            </div>
+        `;
+      }
+      //Inputs Listener
+      for (let i of inputs)
+        i.addEventListener("change", (e) => {
+          //On changes call function
+          handleChanges(e);
+        });
+    </script>
+  </body>
+</html>
